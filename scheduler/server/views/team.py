@@ -2,7 +2,7 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status
-from ..serializers import TeamSerializer, TeamMemberSerializer
+from ..serializers import TeamSerializer, TeamMemberSerializer, RotationSerializer
 from ..models import Team
 
 
@@ -45,11 +45,13 @@ class TeamViewSet(viewsets.ModelViewSet):
         serializer = TeamMemberSerializer(members, many=True)
         return Response(serializer.data)
 
+    @action(methods=["GET"], detail=True)
+    def rotations(self, request, name=None):
+        team = self.get_object()
+        rotations = team.rotation_set.all()
+        serializer = RotationSerializer(rotations, many=True)
+        return Response(serializer.data)
 
-# list (admin) ✅
-# get (all) ✅
-# create (all) ✅
-# update -> name (chiefs) ✅
-# delete (chiefs) ✅
-# GET / teams/<int:id>/team_members ✅
-# POST /teams/invite/<int:id> -> invite members to a team
+    @action(methods=["POST"], detail=True)
+    def invite(self, request, name=None):
+        return Response("Not implemented yet")

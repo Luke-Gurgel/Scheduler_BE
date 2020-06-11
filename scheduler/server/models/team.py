@@ -50,10 +50,10 @@ class Rotation(models.Model):
         default=1, validators=[MinValueValidator(1), MaxValueValidator(3)]
     )
 
-    def save(self, **kwargs):
+    def save(self):
         try:
             self.full_clean()
-            super(Rotation, self).save(**kwargs)
+            super(Rotation, self).save()
         except ValidationError as err:
             print("Validation error:", err)
 
