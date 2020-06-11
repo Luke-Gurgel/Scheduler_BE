@@ -1,15 +1,11 @@
+from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework import generics, status
-from ..serializers import TeamSerializer
+from rest_framework import viewsets, status
+from ..serializers import TeamSerializer, TeamMemberSerializer
 from ..models import Team
 
 
-class TeamListCreateView(generics.ListCreateAPIView):
-    queryset = Team.objects.all()
-    serializer_class = TeamSerializer
-
-
-class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
+class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     lookup_field = "name"
@@ -23,23 +19,27 @@ class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
         team_member = team.teammember_set.get(pk=2)  # get id from JWT
         return team_member.is_chief
 
-    def patch(self, request, *args, **kwargs):
+    def partial_update(self, request, name=None):
         if self.is_request_valid():
-            return self.partial_update(request, *args, **kwargs)
-
+            return self.partial_update(request, name)
         return self.chief_only_response
 
-    def put(self, request, *args, **kwargs):
+    def udpate(self, request, name=None):
         if self.is_request_valid():
-            return self.update(request, *args, **kwargs)
-
+            return self.update(request, name)
         return self.chief_only_response
 
-    def delete(self, request, *args, **kwargs):
+    def destroy(self, request, name=None):
         if self.is_request_valid():
-            return self.destroy(request, *args, **kwargs)
-
+            return self.destroy(request, name)
         return self.chief_only_response
+
+    @action(methods=["GET"], detail=True)
+    def team_members(self, request, name=None):
+        team = self.get_object()
+        members = team.teammember_set.order_by("column_order_position")
+        serializer = TeamMemberSerializer(members, many=True)
+        return Response(serializer.data)
 
 
 # list (admin) ✅
@@ -47,3 +47,5 @@ class TeamDetailView(generics.RetrieveUpdateDestroyAPIView):
 # create (all) ✅
 # update -> name (chiefs) ✅
 # delete (chiefs) ✅
+# GET / teams/<int:id>/team_members ✅
+# POST /teams/invite/<int:id> -> invite members to a team

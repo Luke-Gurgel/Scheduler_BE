@@ -1,22 +1,9 @@
-from django.urls import path
-from .views import TeamListCreateView, TeamDetailView
-
-urlpatterns = [
-    path("teams/", TeamListCreateView.as_view(), name="team_list_create"),
-    path(
-        "teams/<str:name>",
-        TeamDetailView.as_view(),
-        name="team_retrieve_update_destroy",
-    ),
-]
+from rest_framework.routers import DefaultRouter
+from .views import TeamViewSet, TeamMemberViewSet
 
 
-# Signup flow
-# - Gather credentials
-# - Ask to join or create a team
-# - if create:
-#     - POST -> api/v1/teams -> body: { name }
-#     - if !exists -> POST -> api/v1/users -> body: { ...credentials, team_id }
-# - if join:
-#     - GET -> api/v1/teams/<str:team_name>
-#     - if exists -> POST -> api/v1/users -> body: { ...credentials, team_id }
+router = DefaultRouter()
+router.register(r"teams", TeamViewSet)
+router.register(r"team_members", TeamMemberViewSet)
+
+urlpatterns = router.urls
