@@ -14,8 +14,8 @@ class TeamMember(models.Model):
     team = models.ForeignKey("Team", on_delete=models.CASCADE)
     fname = models.CharField(max_length=30, null=False)
     lname = models.CharField(max_length=30, null=False)
-    email = models.EmailField(max_length=254)
-    column_order_position = models.IntegerField()
+    email = models.EmailField(max_length=254, unique=True)
+    column_order_position = models.PositiveSmallIntegerField()
     year = models.IntegerField(
         default=1, validators=[MinValueValidator(1), MaxValueValidator(4)]
     )
@@ -59,3 +59,14 @@ class Rotation(models.Model):
 
     def __str__(self):
         return f"{self.name}"
+
+
+# Signup flow
+# - Gather credentials
+# - Ask to join or create a team
+# - if create:
+#     - POST -> api/v1/teams -> body: { name }
+#     - if !exists -> POST -> api/v1/users -> body: { ...credentials, team_id }
+# - if join:
+#     - GET -> api/v1/teams/<str:team_name>
+#     - if exists -> POST -> api/v1/users -> body: { ...credentials, team_id }

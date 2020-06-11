@@ -1,5 +1,6 @@
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import viewsets, status
 from ..serializers import TeamSerializer, TeamMemberSerializer
 from ..models import Team
@@ -16,15 +17,18 @@ class TeamViewSet(viewsets.ModelViewSet):
     def is_request_valid(self) -> bool:
         """Check if team member is chief."""
         team = self.get_object()
-        team_member = team.teammember_set.get(pk=2)  # get id from JWT
-        return team_member.is_chief
+        try:
+            team_member = team.teammember_set.get(pk=1)  # get id from JWT
+            return team_member.is_chief
+        except ObjectDoesNotExist:
+            return False
 
     def partial_update(self, request, name=None):
         if self.is_request_valid():
             return self.partial_update(request, name)
         return self.chief_only_response
 
-    def udpate(self, request, name=None):
+    def update(self, request, name=None):
         if self.is_request_valid():
             return self.update(request, name)
         return self.chief_only_response
