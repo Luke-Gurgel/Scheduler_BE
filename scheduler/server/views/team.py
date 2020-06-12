@@ -1,8 +1,10 @@
+from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from rest_framework.request import Request
 from django.core.exceptions import ObjectDoesNotExist
-from rest_framework import viewsets, status
 from ..serializers import TeamSerializer, TeamMemberSerializer, RotationSerializer
+from ..services import EmailService
 from ..models import Team
 
 
@@ -53,5 +55,17 @@ class TeamViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
 
     @action(methods=["POST"], detail=True)
-    def invite(self, request, name=None):
-        return Response("Not implemented yet")
+    def invite(self, request: Request, name=None):
+        try:
+            email_client = EmailService()
+            email_client.send_invite_email(
+                team_name=name,
+                to_emails=request.data["to_emails"],
+                from_email=request.data["from_email"],
+            )
+            return Response("Invites sent successfully", status=status.HTTP_200_OK)
+        except Exception:
+            return Response(
+                "We're sorry, the invites could not be sent",
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )

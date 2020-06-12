@@ -59,14 +59,3 @@ class Rotation(models.Model):
 
     def __str__(self):
         return f"{self.name}"
-
-
-# Signup flow
-# - Gather credentials
-# - Ask to join or create a team
-# - if create:
-#     - POST -> api/v1/teams -> body: { name }
-#     - if !exists -> POST -> api/v1/users -> body: { ...credentials, team_id }
-# - if join:
-#     - GET -> api/v1/teams/<str:team_name>
-#     - if exists -> POST -> api/v1/users -> body: { ...credentials, team_id }
