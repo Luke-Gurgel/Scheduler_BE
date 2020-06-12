@@ -17,33 +17,6 @@ class TeamViewSet(viewsets.ModelViewSet):
     queryset = Team.objects.all()
     serializer_class = TeamSerializer
     lookup_field = "name"
-    chief_only_response = Response(
-        "This is a chief-only operation", status=status.HTTP_401_UNAUTHORIZED
-    )
-
-    def is_request_valid(self) -> bool:
-        """Check if team member is chief."""
-        team = self.get_object()
-        try:
-            team_member = team.teammember_set.get(pk=1)  # get id from JWT
-            return team_member.is_chief
-        except ObjectDoesNotExist:
-            return False
-
-    def partial_update(self, request, name=None):
-        if self.is_request_valid():
-            return self.partial_update(request, name)
-        return self.chief_only_response
-
-    def update(self, request, name=None):
-        if self.is_request_valid():
-            return self.update(request, name)
-        return self.chief_only_response
-
-    def destroy(self, request, name=None):
-        if self.is_request_valid():
-            return self.destroy(request, name)
-        return self.chief_only_response
 
     @action(methods=["GET"], detail=True)
     def team_members(self, request, name=None):
