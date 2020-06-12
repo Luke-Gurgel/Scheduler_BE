@@ -3,9 +3,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.request import Request
 from django.core.exceptions import ObjectDoesNotExist
-from ..serializers import TeamSerializer, TeamMemberSerializer, RotationSerializer
 from ..services import EmailService
 from ..models import Team
+from ..serializers import (
+    TeamSerializer,
+    TeamMemberSerializer,
+    RotationSerializer,
+    ScheduleSerializer,
+)
 
 
 class TeamViewSet(viewsets.ModelViewSet):
@@ -52,6 +57,13 @@ class TeamViewSet(viewsets.ModelViewSet):
         team = self.get_object()
         rotations = team.rotation_set.all()
         serializer = RotationSerializer(rotations, many=True)
+        return Response(serializer.data)
+
+    @action(methods=["GET"], detail=True)
+    def schedules(self, request, name=None):
+        team = self.get_object()
+        schedules = team.schedule_set.order_by("-start_date")
+        serializer = ScheduleSerializer(schedules, many=True)
         return Response(serializer.data)
 
     @action(methods=["POST"], detail=True)
