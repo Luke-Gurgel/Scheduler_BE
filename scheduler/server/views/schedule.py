@@ -4,13 +4,9 @@ from ..serializers import ScheduleSerializer, ScheduleEntrySerializer
 
 
 class ScheduleViewSet(
-    mixins.ListModelMixin,
-    mixins.CreateModelMixin,
-    mixins.RetrieveModelMixin,
-    mixins.DestroyModelMixin,
-    viewsets.GenericViewSet,
+    mixins.CreateModelMixin, mixins.DestroyModelMixin, viewsets.GenericViewSet,
 ):
     """A viewset for creating, retrieving and listing schedules."""
 
-    queryset = Schedule.objects.order_by("-start_date")
+    queryset = Schedule.objects.all()
     serializer_class = ScheduleSerializer
