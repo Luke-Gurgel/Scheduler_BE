@@ -40,9 +40,9 @@ class ScheduleEntryListCreateView(APIView):
             )
 
         entries = request.data["entries"]
-        if len(entries) == 0:
+        if not isinstance(entries, list) or len(entries) == 0:
             return Response(
-                "Entries array cannot be empty", status=status.HTTP_400_BAD_REQUEST
+                "Entries should be a non-empty list", status=status.HTTP_400_BAD_REQUEST
             )
 
         try:
