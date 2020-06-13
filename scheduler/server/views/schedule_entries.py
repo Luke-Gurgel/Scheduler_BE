@@ -28,7 +28,7 @@ class ScheduleEntryListCreateView(APIView):
         schedule = Schedule.objects.get(pk=schedule_id)
         entries = schedule.scheduleentry_set.filter(
             shift_start_date__range=(from_date, to_date)
-        )[::step]
+        ).order_by("shift_start_date")[::step]
         serializer = ScheduleEntrySerializer(entries, many=True)
         return Response(serializer.data)
 
@@ -90,9 +90,20 @@ class ScheduleEntryUpdateView(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def update_many(self, request, entry):
-        end_of_week_date = entry.shift_start_date + timedelta(7)
-        ScheduleEntry.objects.filter(
+        week_start_date = entry.shift_start_date - timedelta(
+            days=entry.shift_start_date.weekday()
+        )
+        week_end_date = week_start_date + timedelta(6)
+        entries = ScheduleEntry.objects.filter(
             schedule=entry.schedule,
             team_member=entry.team_member,
-            shift_start_date__range=(entry.shift_start_date, end_of_week_date),
-        )
+            shift_start_date__range=(week_start_date, week_end_date),
+        ).order_by("shift_start_date")
+        for schedule_entry in entries:
+            serializer = ScheduleEntrySerializer(
+                schedule_entry, data=request.data, partial=True
+            )
+            if serializer.is_valid():
+                serializer.save()
+        serializer = ScheduleEntrySerializer(entries, many=True)
+        return Response(serializer.data)
