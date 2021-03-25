@@ -22,7 +22,7 @@ pylint-django==2.0.12
 pylint-flask==0.6
 pylint-plugin-utils==0.6
 pytz==2020.1
-PyYAML==5.3.1
+PyYAML==5.4
 regex==2020.6.7
 requirements-detector==0.7
 setoptconf==0.2.0
